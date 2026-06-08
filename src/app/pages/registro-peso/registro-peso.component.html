@@ -1,0 +1,57 @@
+<div class="registro-wrapper">
+  <nav class="sidebar">
+    <div class="sidebar-brand">G<span>Y</span>M</div>
+    <ul class="nav-links">
+      <li><a routerLink="/dashboard"><i class="bi bi-grid-fill"></i> Dashboard</a></li>
+      <li><a routerLink="/registro" class="active"><i class="bi bi-plus-circle-fill"></i> Registrar peso</a></li>
+      <li><a routerLink="/resumen"><i class="bi bi-bar-chart-fill"></i> Resumen mensual</a></li>
+      <li><a routerLink="/ejercicios"><i class="bi bi-lightning-fill"></i> Ejercicios</a></li>
+      <li><a routerLink="/perfil"><i class="bi bi-person-fill"></i> Perfil</a></li>
+    </ul>
+  </nav>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Registrar peso</h1>
+    </div>
+
+    <div class="form-card">
+      <div class="form-group">
+        <label>Fecha</label>
+        <input type="date" [(ngModel)]="fecha" class="form-input" />
+      </div>
+
+      <div class="form-group">
+        <label>Peso (kg)</label>
+        <div class="peso-input-wrapper">
+          <input type="number" [(ngModel)]="peso" placeholder="75.5" step="0.1" min="0" class="form-input peso-input" />
+          <span class="kg-badge">kg</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Nota <span class="opcional">(opcional)</span></label>
+        <input type="text" [(ngModel)]="nota" placeholder="Ej: después de entrenar" class="form-input" />
+      </div>
+
+      <div class="error-msg" *ngIf="error()">{{ error() }}</div>
+
+      <div class="form-actions">
+        <a routerLink="/dashboard" class="btn-cancel">Cancelar</a>
+        <button class="btn-save" (click)="guardar()" [disabled]="guardando()">
+          <span *ngIf="!guardando()"><i class="bi bi-check-lg"></i> Guardar</span>
+          <span *ngIf="guardando()">Guardando...</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+<nav class="bottom-nav">
+  <a routerLink="/dashboard"><i class="bi bi-grid-fill"></i><span>Inicio</span></a>
+  <a routerLink="/registro" class="active"><i class="bi bi-plus-circle-fill"></i><span>Registrar</span></a>
+  <a routerLink="/resumen"><i class="bi bi-bar-chart-fill"></i><span>Resumen</span></a>
+  <a routerLink="/ejercicios"><i class="bi bi-lightning-fill"></i><span>Ejercicios</span></a>
+  <a routerLink="/perfil"><i class="bi bi-person-fill"></i><span>Perfil</span></a>
+  <button (click)="logout()"><i class="bi bi-box-arrow-right"></i><span>Salir</span></button>
+</nav>
+</div>

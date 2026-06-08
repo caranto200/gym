@@ -1,0 +1,76 @@
+<div class="perfil-wrapper">
+  <nav class="sidebar">
+    <div class="sidebar-brand">G<span>Y</span>M</div>
+    <ul class="nav-links">
+      <li><a routerLink="/dashboard"><i class="bi bi-grid-fill"></i> Dashboard</a></li>
+      <li><a routerLink="/registro"><i class="bi bi-plus-circle-fill"></i> Registrar peso</a></li>
+      <li><a routerLink="/resumen"><i class="bi bi-bar-chart-fill"></i> Resumen mensual</a></li>
+      <li><a routerLink="/ejercicios"><i class="bi bi-lightning-fill"></i> Ejercicios</a></li>
+      <li><a routerLink="/perfil" class="active"><i class="bi bi-person-fill"></i> Perfil</a></li>
+    </ul>
+  </nav>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Perfil</h1>
+    </div>
+
+    <div class="loading" *ngIf="cargando()">Cargando...</div>
+
+    <ng-container *ngIf="!cargando()">
+
+      <div class="user-card" *ngIf="user$ | async as user">
+        <img [src]="user.photoURL" class="avatar" alt="avatar">
+        <div class="user-info">
+          <span class="user-name">{{ user.displayName }}</span>
+          <span class="user-email">{{ user.email }}</span>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-title">Mis datos</div>
+
+        <div class="form-group">
+          <label>Altura (cm)</label>
+          <div class="input-wrapper">
+            <input type="number" [(ngModel)]="altura" placeholder="175" min="100" max="250" class="form-input" />
+            <span class="input-unit">cm</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Peso objetivo (kg)</label>
+          <div class="input-wrapper">
+            <input type="number" [(ngModel)]="pesoObjetivo" placeholder="75" min="30" max="300" step="0.1" class="form-input" />
+            <span class="input-unit">kg</span>
+          </div>
+        </div>
+
+        <div class="guardado-msg" *ngIf="guardado()">
+          <i class="bi bi-check-circle-fill"></i> Perfil guardado correctamente
+        </div>
+
+        <button class="btn-save" (click)="guardar()" [disabled]="guardando()">
+          <span *ngIf="!guardando()"><i class="bi bi-check-lg"></i> Guardar cambios</span>
+          <span *ngIf="guardando()">Guardando...</span>
+        </button>
+      </div>
+
+      <div class="danger-card">
+        <div class="form-title">Sesión</div>
+        <button class="btn-logout" (click)="logout()">
+          <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+        </button>
+      </div>
+
+    </ng-container>
+  </main>
+
+  <nav class="bottom-nav">
+    <a routerLink="/dashboard"><i class="bi bi-grid-fill"></i><span>Inicio</span></a>
+    <a routerLink="/registro"><i class="bi bi-plus-circle-fill"></i><span>Registrar</span></a>
+    <a routerLink="/resumen"><i class="bi bi-bar-chart-fill"></i><span>Resumen</span></a>
+    <a routerLink="/ejercicios"><i class="bi bi-lightning-fill"></i><span>Ejercicios</span></a>
+    <a routerLink="/perfil" class="active"><i class="bi bi-person-fill"></i><span>Perfil</span></a>
+  </nav>
+</div>

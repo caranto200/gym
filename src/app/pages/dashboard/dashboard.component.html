@@ -1,0 +1,94 @@
+<div class="dashboard-wrapper">
+
+  <nav class="sidebar">
+    <div class="sidebar-brand">G<span>Y</span>M</div>
+    <ul class="nav-links">
+      <li><a routerLink="/dashboard" class="active"><i class="bi bi-grid-fill"></i> Dashboard</a></li>
+      <li><a routerLink="/registro"><i class="bi bi-plus-circle-fill"></i> Registrar peso</a></li>
+      <li><a routerLink="/resumen"><i class="bi bi-bar-chart-fill"></i> Resumen mensual</a></li>
+      <li><a routerLink="/ejercicios"><i class="bi bi-lightning-fill"></i> Ejercicios</a></li>
+      <li><a routerLink="/perfil"><i class="bi bi-person-fill"></i> Perfil</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <ng-container *ngIf="user$ | async as user">
+        <img [src]="user.photoURL" class="avatar" alt="avatar">
+        <span class="user-name">{{ user.displayName }}</span>
+      </ng-container>
+      <button class="btn-logout" (click)="logout()"><i class="bi bi-box-arrow-right"></i></button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Dashboard</h1>
+      <a routerLink="/registro" class="btn-add"><i class="bi bi-plus-lg"></i> Registrar hoy</a>
+    </div>
+
+    <div class="stats-grid" *ngIf="!cargando()">
+      <div class="stat-card">
+        <span class="stat-label">Último peso</span>
+        <span class="stat-value">{{ ultimoPeso ?? '—' }} <small>kg</small></span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Peso inicial</span>
+        <span class="stat-value">{{ pesoInicial ?? '—' }} <small>kg</small></span>
+      </div>
+      <div class="stat-card" [class.positivo]="diferencia && diferencia > 0" [class.negativo]="diferencia && diferencia < 0">
+        <span class="stat-label">Diferencia total</span>
+        <span class="stat-value">{{ diferencia !== null ? (diferencia > 0 ? '+' : '') + diferencia : '—' }} <small>kg</small></span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Registros totales</span>
+        <span class="stat-value">{{ registros().length }}</span>
+      </div>
+      <div class="stat-card" *ngIf="imc">
+  <span class="stat-label">IMC</span>
+  <span class="stat-value" [style.color]="imcColor">{{ imc }} <small>{{ imcCategoria }}</small></span>
+</div>
+      
+    </div>
+    <div class="objetivo-card" *ngIf="perfil()?.pesoObjetivo">
+  <div class="objetivo-header">
+    <span class="objetivo-label">Objetivo: {{ perfil()!.pesoObjetivo }} kg</span>
+    <span class="objetivo-diff" [class.cerca]="progresoObjetivo >= 80">
+      <ng-container *ngIf="faltanKg !== null">
+        {{ faltanKg > 0 ? '+' : '' }}{{ faltanKg }} kg para el objetivo
+      </ng-container>
+    </span>
+  </div>
+  <div class="progreso-bar">
+    <div class="progreso-fill" [style.width.%]="progresoObjetivo"></div>
+  </div>
+  <div class="progreso-pct">{{ progresoObjetivo }}% completado</div>
+</div>
+
+    <div class="section-title">Últimos 7 registros</div>
+
+    <div class="loading" *ngIf="cargando()">Cargando...</div>
+
+    <div class="empty-state" *ngIf="!cargando() && registros().length === 0">
+      <i class="bi bi-clipboard-data"></i>
+      <p>Aún no tienes registros. ¡Empieza hoy!</p>
+      <a routerLink="/registro" class="btn-add">Registrar primer peso</a>
+    </div>
+
+    <div class="registros-list" *ngIf="!cargando() && registros().length > 0">
+      <div class="registro-item" *ngFor="let r of registrosRecientes">
+        <div class="registro-fecha">{{ r.fecha }}</div>
+        <div class="registro-peso">{{ r.peso }} kg</div>
+        <div class="registro-nota">{{ r.nota || '—' }}</div>
+        <button class="btn-eliminar" (click)="eliminar(r.id!)"><i class="bi bi-trash3"></i></button>
+      </div>
+    </div>
+  </main>
+  <nav class="bottom-nav">
+  <a routerLink="/dashboard" class="active"><i class="bi bi-grid-fill"></i><span>Inicio</span></a>
+  <a routerLink="/registro"><i class="bi bi-plus-circle-fill"></i><span>Registrar</span></a>
+  <a routerLink="/resumen"><i class="bi bi-bar-chart-fill"></i><span>Resumen</span></a>
+  <a routerLink="/ejercicios"><i class="bi bi-lightning-fill"></i><span>Ejercicios</span></a>
+<a routerLink="/perfil"><i class="bi bi-person-fill"></i><span>Perfil</span></a>
+  <button (click)="logout()"><i class="bi bi-box-arrow-right"></i><span>Salir</span></button>
+  
+</nav>
+
+</div>

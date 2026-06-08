@@ -1,0 +1,173 @@
+<div class="ejercicios-wrapper">
+  <nav class="sidebar">
+    <div class="sidebar-brand">G<span>Y</span>M</div>
+    <ul class="nav-links">
+      <li><a routerLink="/dashboard"><i class="bi bi-grid-fill"></i> Dashboard</a></li>
+      <li><a routerLink="/registro"><i class="bi bi-plus-circle-fill"></i> Registrar peso</a></li>
+      <li><a routerLink="/resumen"><i class="bi bi-bar-chart-fill"></i> Resumen mensual</a></li>
+      <li><a routerLink="/ejercicios" class="active"><i class="bi bi-lightning-fill"></i> Ejercicios</a></li>
+      <li><a routerLink="/perfil"><i class="bi bi-person-fill"></i> Perfil</a></li>
+    </ul>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- LISTA -->
+    <ng-container *ngIf="vista() === 'lista'">
+      <div class="page-header">
+        <h1>Ejercicios</h1>
+        <button class="btn-add" (click)="vista.set('nuevo')">
+          <i class="bi bi-plus-lg"></i> Nuevo
+        </button>
+      </div>
+
+      <div class="loading" *ngIf="cargando()">Cargando...</div>
+
+      <ng-container *ngIf="!cargando()">
+
+        <div class="ejercicios-nombres" *ngIf="nombresEjercicios().length > 0">
+          <div class="section-title">Progreso por ejercicio</div>
+          <div class="nombres-grid">
+            <div class="nombre-card" *ngFor="let n of nombresEjercicios()" (click)="verProgreso(n)">
+              <i class="bi bi-lightning-fill"></i>
+              <span>{{ n }}</span>
+              <i class="bi bi-arrow-right arrow"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="mes-header">
+          <div class="section-title">Registros de {{ nombreMes }}</div>
+          <select [(ngModel)]="mesSeleccionado" class="mes-select">
+            <option *ngFor="let mes of mesesDisponibles" [value]="mes">{{ mes }}</option>
+          </select>
+        </div>
+
+        <div class="empty-state" *ngIf="registrosFiltrados.length === 0">
+          <i class="bi bi-activity"></i>
+          <p>No hay ejercicios en {{ nombreMes }}</p>
+          <button class="btn-add" (click)="vista.set('nuevo')">Añadir ejercicio</button>
+        </div>
+
+        <div class="registros-list" *ngIf="registrosFiltrados.length > 0">
+          <div class="registro-card" *ngFor="let r of registrosFiltrados">
+            <div class="registro-header">
+              <span class="registro-nombre"><i class="bi bi-lightning-fill"></i> {{ r.nombre }}</span>
+              <div class="header-actions">
+                <span class="registro-fecha">{{ r.fecha }}</span>
+                <button class="btn-eliminar" (click)="eliminar(r.id!)"><i class="bi bi-trash3"></i></button>
+              </div>
+            </div>
+            <div class="series-grid">
+              <div class="serie-item" *ngFor="let s of r.series; let i = index">
+                <span class="serie-num">S{{ i + 1 }}</span>
+                <span class="serie-dato">{{ s.peso }} kg</span>
+                <span class="serie-dato">× {{ s.reps }} reps</span>
+              </div>
+            </div>
+            <div class="registro-nota" *ngIf="r.nota">{{ r.nota }}</div>
+          </div>
+        </div>
+
+      </ng-container>
+    </ng-container>
+
+    <!-- NUEVO -->
+    <ng-container *ngIf="vista() === 'nuevo'">
+      <div class="page-header">
+        <h1>Nuevo ejercicio</h1>
+        <button class="btn-cancel-header" (click)="vista.set('lista')">
+          <i class="bi bi-arrow-left"></i> Volver
+        </button>
+      </div>
+
+      <div class="form-card">
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" [(ngModel)]="fecha" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Ejercicio</label>
+          <select [(ngModel)]="nombre" class="form-input">
+            <option value="">Selecciona o crea uno nuevo</option>
+            <option *ngFor="let n of nombresEjercicios()" [value]="n">{{ n }}</option>
+            <option value="__custom__">+ Nuevo ejercicio...</option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="nombre === '__custom__'">
+          <label>Nombre del ejercicio</label>
+          <input type="text" [(ngModel)]="nombreCustom" placeholder="Ej: Press banca" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Series</label>
+          <div class="series-form">
+            <div class="serie-row" *ngFor="let s of series; let i = index">
+              <span class="serie-label">S{{ i + 1 }}</span>
+              <div class="serie-inputs">
+                <div class="input-with-label">
+                  <input type="number" [(ngModel)]="s.peso" placeholder="0" min="0" step="0.5" class="form-input small" />
+                  <span class="input-unit">kg</span>
+                </div>
+                <div class="input-with-label">
+                  <input type="number" [(ngModel)]="s.reps" placeholder="0" min="0" class="form-input small" />
+                  <span class="input-unit">reps</span>
+                </div>
+              </div>
+              <button class="btn-remove-serie" (click)="eliminarSerie(i)" *ngIf="series.length > 1">
+                <i class="bi bi-x"></i>
+              </button>
+            </div>
+          </div>
+          <button class="btn-add-serie" (click)="anadirSerie()">
+            <i class="bi bi-plus"></i> Añadir serie
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label>Nota <span class="opcional">(opcional)</span></label>
+          <input type="text" [(ngModel)]="nota" placeholder="Ej: con agarre cerrado" class="form-input" />
+        </div>
+
+        <div class="error-msg" *ngIf="error()">{{ error() }}</div>
+
+        <div class="form-actions">
+          <button class="btn-cancel" (click)="vista.set('lista')">Cancelar</button>
+          <button class="btn-save" (click)="guardar()" [disabled]="guardando()">
+            <span *ngIf="!guardando()"><i class="bi bi-check-lg"></i> Guardar</span>
+            <span *ngIf="guardando()">Guardando...</span>
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- PROGRESO -->
+    <ng-container *ngIf="vista() === 'progreso'">
+      <div class="page-header">
+        <h1>{{ ejercicioSeleccionado() }}</h1>
+        <button class="btn-cancel-header" (click)="vista.set('lista')">
+          <i class="bi bi-arrow-left"></i> Volver
+        </button>
+      </div>
+
+      <div class="chart-card">
+        <div class="card-title">Evolución del peso máximo</div>
+        <div class="chart-container">
+          <canvas #chartCanvas></canvas>
+        </div>
+      </div>
+    </ng-container>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <a routerLink="/dashboard"><i class="bi bi-grid-fill"></i><span>Inicio</span></a>
+    <a routerLink="/registro"><i class="bi bi-plus-circle-fill"></i><span>Registrar</span></a>
+    <a routerLink="/resumen"><i class="bi bi-bar-chart-fill"></i><span>Resumen</span></a>
+    <a routerLink="/ejercicios" class="active"><i class="bi bi-lightning-fill"></i><span>Ejercicios</span></a>
+    <a routerLink="/perfil"><i class="bi bi-person-fill"></i><span>Perfil</span></a>
+    <button (click)="logout()"><i class="bi bi-box-arrow-right"></i><span>Salir</span></button>
+  </nav>
+</div>

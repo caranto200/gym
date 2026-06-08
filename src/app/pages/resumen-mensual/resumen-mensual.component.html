@@ -1,0 +1,93 @@
+<div class="resumen-wrapper">
+  <nav class="sidebar">
+    <div class="sidebar-brand">G<span>Y</span>M</div>
+    <ul class="nav-links">
+      <li><a routerLink="/dashboard"><i class="bi bi-grid-fill"></i> Dashboard</a></li>
+      <li><a routerLink="/registro"><i class="bi bi-plus-circle-fill"></i> Registrar peso</a></li>
+      <li><a routerLink="/resumen" class="active"><i class="bi bi-bar-chart-fill"></i> Resumen mensual</a></li>
+      <li><a routerLink="/ejercicios"><i class="bi bi-lightning-fill"></i> Ejercicios</a></li>
+      <li><a routerLink="/perfil"><i class="bi bi-person-fill"></i> Perfil</a></li>
+    </ul>
+  </nav>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Resumen mensual</h1>
+      <select [(ngModel)]="mesSeleccionado" (ngModelChange)="onMesChange()" class="mes-select">
+        <option *ngFor="let mes of mesesDisponibles" [value]="mes">{{ mes }}</option>
+      </select>
+    </div>
+
+    <div class="loading" *ngIf="cargando()">Cargando...</div>
+
+    <div class="empty-state" *ngIf="!cargando() && !resumen">
+      <i class="bi bi-calendar-x"></i>
+      <p>No hay registros para {{ nombreMes }}</p>
+      <a routerLink="/registro" class="btn-add">Registrar peso</a>
+    </div>
+
+    <ng-container *ngIf="!cargando() && resumen">
+
+      <div class="mes-titulo">{{ nombreMes }}</div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">Mínimo</span>
+          <span class="stat-value">{{ resumen.pesoMin }} <small>kg</small></span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Máximo</span>
+          <span class="stat-value">{{ resumen.pesoMax }} <small>kg</small></span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Promedio</span>
+          <span class="stat-value">{{ resumen.pesoPromedio }} <small>kg</small></span>
+        </div>
+        <div class="stat-card" [class.negativo]="resumen.diferencia < 0" [class.positivo]="resumen.diferencia > 0">
+          <span class="stat-label">Variación</span>
+          <span class="stat-value">{{ resumen.diferencia > 0 ? '+' : '' }}{{ resumen.diferencia }} <small>kg</small></span>
+        </div>
+      </div>
+
+      <div class="content-grid">
+
+        <div class="chart-card">
+          <div class="card-title">Evolución del peso</div>
+          <div class="chart-container">
+            <canvas #chartCanvas></canvas>
+          </div>
+        </div>
+
+        <div class="calendar-card">
+          <div class="card-title">Registros del mes</div>
+          <div class="calendar">
+            <div class="cal-header">
+              <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+            </div>
+            <div class="cal-grid">
+              <div class="cal-empty" *ngFor="let e of [].constructor(primerDiaSemana)"></div>
+              <div class="cal-day"
+                *ngFor="let registro of diasDelMes; let i = index"
+                [class.tiene-registro]="registro !== null"
+                [title]="registro ? registro.peso + ' kg' : ''">
+                <span class="dia-num">{{ i + 1 }}</span>
+                <span class="dia-peso" *ngIf="registro">{{ registro.peso }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </ng-container>
+  </main>
+
+<nav class="bottom-nav">
+  <a routerLink="/dashboard"><i class="bi bi-grid-fill"></i><span>Inicio</span></a>
+  <a routerLink="/registro"><i class="bi bi-plus-circle-fill"></i><span>Registrar</span></a>
+  <a routerLink="/resumen" class="active"><i class="bi bi-bar-chart-fill"></i><span>Resumen</span></a>
+  <a routerLink="/ejercicios"><i class="bi bi-lightning-fill"></i><span>Ejercicios</span></a>
+  <a routerLink="/perfil"><i class="bi bi-person-fill"></i><span>Perfil</span></a>
+  <button (click)="logout()"><i class="bi bi-box-arrow-right"></i><span>Salir</span></button>
+</nav>
+</div>
